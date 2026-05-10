@@ -1,3 +1,8 @@
+import 'package:finetravel/services/auth.dart';
+import 'package:finetravel/services/social_service.dart';
+import 'package:finetravel/views/notifications_view/notifications_page.dart';
+import 'package:finetravel/views/settings_view/settings_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,50 +12,144 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = Auth().currentUser;
+    final String displayName = user?.displayName ?? user?.email?.split('@')[0] ?? 'Explorer';
+
     return Scaffold(
-      appBar: _appBarView(),
+      appBar: _customAppBar(context, displayName),
       body: navigationShell,
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          labelTextStyle: WidgetStateTextStyle.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return TextStyle(color: Theme.of(context).colorScheme.primary);
-            }
-            return TextStyle(color: Theme.of(context).colorScheme.tertiary);
-          }),
-        ),
-        child: NavigationBar(
-          selectedIndex: navigationShell.currentIndex,
-          indicatorColor: Colors.transparent,
-          onDestinationSelected: navigationShell.goBranch,
-
-          destinations: [
-            _menuItem(
-              context,
-              index: 0,
-              currentIndex: navigationShell.currentIndex,
-              label: 'Home',
-              icon: Icons.home,
-            ),
-
-            _menuItem(
-              context,
-              index: 1,
-              currentIndex: navigationShell.currentIndex,
-              label: 'Favorites',
-              icon: Icons.bookmark,
-            ),
-
-            _menuItem(
-              context,
-              index: 2,
-              currentIndex: navigationShell.currentIndex,
-              label: 'Profile',
-              icon: Icons.face,
-            ),
-          ],
-        ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: navigationShell.goBranch,
+        destinations: [
+          _menuItem(
+            context,
+            index: 0,
+            currentIndex: navigationShell.currentIndex,
+            label: 'EXPLORE',
+            icon: CupertinoIcons.compass_fill,
+          ),
+          _menuItem(
+            context,
+            index: 1,
+            currentIndex: navigationShell.currentIndex,
+            label: 'TRIPS',
+            icon: CupertinoIcons.map_fill,
+          ),
+          _menuItem(
+            context,
+            index: 2,
+            currentIndex: navigationShell.currentIndex,
+            label: 'PROFILE',
+            icon: CupertinoIcons.person_fill,
+          ),
+        ],
       ),
+    );
+  }
+
+  PreferredSizeWidget _customAppBar(BuildContext context, String name) {
+    return AppBar(
+      toolbarHeight: 80,
+      title: Row(
+        children: [
+          Stack(
+            children: [
+              const CircleAvatar(
+                radius: 24,
+                backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=arda'), // Placeholder
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'EXPLORER',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              Text(
+                'Welcome back, $name',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationsPage()),
+          ),
+          child: ListenableBuilder(
+            listenable: SocialService(),
+            builder: (context, child) {
+              final unreadCount = SocialService().unreadNotificationsCount;
+              return Stack(
+                children: [
+                  _appBarAction(context, CupertinoIcons.bell_fill),
+                  if (unreadCount > 0)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                        child: Text(
+                          unreadCount.toString(),
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SettingsPage()),
+          ),
+          child: _appBarAction(context, CupertinoIcons.settings_solid),
+        ),
+        const SizedBox(width: 16),
+      ],
+    );
+  }
+
+  Widget _appBarAction(BuildContext context, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: 20, color: Colors.white),
     );
   }
 
@@ -61,24 +160,13 @@ class AppView extends StatelessWidget {
     required String label,
     required IconData icon,
   }) {
+    final bool isSelected = currentIndex == index;
     return NavigationDestination(
       icon: Icon(
         icon,
-        color: currentIndex == index
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.tertiary,
+        color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.tertiary,
       ),
       label: label,
-    );
-  }
-
-  AppBar _appBarView() {
-    return AppBar(
-      title: const Text(
-        'Fine Travel',
-        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-      ),
-      actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.settings))],
     );
   }
 }

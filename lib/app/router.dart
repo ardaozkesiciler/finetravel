@@ -33,7 +33,6 @@ final router = GoRouter(
             ),
           ],
         ),
-
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -42,19 +41,10 @@ final router = GoRouter(
             ),
           ],
         ),
-
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: AppRoutes.Profile,
-              builder: (context, state) => const Profile(),
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: AppRoutes.LoginRegister,
               builder: (context, state) => const Profile(),
             ),
           ],
