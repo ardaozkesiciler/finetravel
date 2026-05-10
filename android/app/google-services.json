@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "161047588324",
+    "project_id": "finetravel-a6c07",
+    "storage_bucket": "finetravel-a6c07.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:161047588324:android:acccc8abea0883857cebf1",
+        "android_client_info": {
+          "package_name": "com.example.finetravel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4Wc4y5oeg81lP4AEbvQh55rueAsnaGH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
