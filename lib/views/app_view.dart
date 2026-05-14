@@ -12,39 +12,51 @@ class AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = Auth().currentUser;
-    final String displayName = user?.displayName ?? user?.email?.split('@')[0] ?? 'Explorer';
+    return ListenableBuilder(
+      listenable: Auth(),
+      builder: (context, child) {
+        final user = Auth().currentUser;
+        final String displayName = user?.displayName ?? user?.email?.split('@')[0] ?? 'Explorer';
 
-    return Scaffold(
-      appBar: _customAppBar(context, displayName),
-      body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: navigationShell.goBranch,
-        destinations: [
-          _menuItem(
-            context,
-            index: 0,
-            currentIndex: navigationShell.currentIndex,
-            label: 'EXPLORE',
-            icon: CupertinoIcons.compass_fill,
+        return Scaffold(
+          appBar: _customAppBar(context, displayName),
+          body: navigationShell,
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: navigationShell.goBranch,
+            destinations: [
+              _menuItem(
+                context,
+                index: 0,
+                currentIndex: navigationShell.currentIndex,
+                label: 'EXPLORE',
+                icon: CupertinoIcons.compass_fill,
+              ),
+              _menuItem(
+                context,
+                index: 1,
+                currentIndex: navigationShell.currentIndex,
+                label: 'FEED',
+                icon: CupertinoIcons.square_stack_3d_up_fill,
+              ),
+              _menuItem(
+                context,
+                index: 2,
+                currentIndex: navigationShell.currentIndex,
+                label: 'TRIPS',
+                icon: CupertinoIcons.map_fill,
+              ),
+              _menuItem(
+                context,
+                index: 3,
+                currentIndex: navigationShell.currentIndex,
+                label: 'PROFILE',
+                icon: CupertinoIcons.person_fill,
+              ),
+            ],
           ),
-          _menuItem(
-            context,
-            index: 1,
-            currentIndex: navigationShell.currentIndex,
-            label: 'TRIPS',
-            icon: CupertinoIcons.map_fill,
-          ),
-          _menuItem(
-            context,
-            index: 2,
-            currentIndex: navigationShell.currentIndex,
-            label: 'PROFILE',
-            icon: CupertinoIcons.person_fill,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -79,7 +91,7 @@ class AppView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'EXPLORER',
+                '@${Auth().username.toUpperCase()}',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontSize: 12,

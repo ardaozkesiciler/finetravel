@@ -1,6 +1,9 @@
 import 'package:finetravel/models/destination.dart';
 import 'package:finetravel/data/mock_data.dart';
 import 'package:finetravel/services/favorites_service.dart';
+import 'package:finetravel/services/location_service.dart';
+import 'package:finetravel/views/home_view/location_selection_map.dart';
+import 'package:finetravel/services/social_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -15,11 +18,13 @@ class SwipePage extends StatefulWidget {
 class _SwipePageState extends State<SwipePage> {
   final CardSwiperController controller = CardSwiperController();
   late List<Destination> destinations;
+  String activeFilter = 'All'; // 'All', 'Nearby', 'Top Rated'
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    destinations = MockData.destinations;
+    destinations = List.from(MockData.destinations);
   }
 
   @override
@@ -28,23 +33,114 @@ class _SwipePageState extends State<SwipePage> {
     super.dispose();
   }
 
+  void _applyFilter(String filter) async {
+    final locationService = LocationService();
+    
+    if (filter == 'Nearby') {
+      // Show Permission Dialog
+      bool? permissionGranted = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Icon(Icons.location_on, size: 48, color: Colors.blue),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Location Permission',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 12),
+              Text(
+                'FineTravel needs your location to show you the closest destinations. Allow access to GPS?',
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Deny', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              child: const Text('Allow', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+
+      if (permissionGranted == true) {
+        await locationService.getCurrentLocation();
+        _sortDestinationsByDistance();
+      } else if (permissionGranted == false) {
+        // Show manual selection map automatically if denied
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Permission denied. Please select location manually.')),
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LocationSelectionMap()),
+          ).then((_) => _sortDestinationsByDistance());
+        }
+      }
+    } else if (filter == 'Top Rated') {
+      _sortDestinationsByRating();
+    } else {
+      setState(() {
+        destinations = List.from(MockData.destinations);
+        activeFilter = 'All';
+      });
+    }
+  }
+
+  void _sortDestinationsByDistance() {
+    final location = LocationService().currentLocation;
+    if (location == null) return;
+
+    setState(() {
+      activeFilter = 'Nearby';
+      destinations.sort((a, b) {
+        if (a.latitude == null || b.latitude == null) return 0;
+        double distA = LocationService().calculateDistance(location.latitude, location.longitude, a.latitude!, a.longitude!);
+        double distB = LocationService().calculateDistance(location.latitude, location.longitude, b.latitude!, b.longitude!);
+        return distA.compareTo(distB);
+      });
+    });
+  }
+
+  void _sortDestinationsByRating() {
+    setState(() {
+      activeFilter = 'Top Rated';
+      destinations.sort((a, b) => b.rating.compareTo(a.rating));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
+            _filterBar(),
             Expanded(
-              child: CardSwiper(
-                controller: controller,
-                cardsCount: destinations.length,
-                isLoop: true,
-                onSwipe: _onSwipe,
-                numberOfCardsDisplayed: 3,
-                backCardOffset: const Offset(0, 20),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                cardBuilder: (context, index, _, __) => _destinationCard(destinations[index]),
-              ),
+              key: ValueKey(activeFilter + destinations.length.toString()),
+              child: destinations.isEmpty 
+                ? const Center(child: CircularProgressIndicator())
+                : CardSwiper(
+                    controller: controller,
+                    cardsCount: destinations.length,
+                    isLoop: true,
+                    onSwipe: (prev, curr, dir) {
+                      setState(() => _currentIndex = curr ?? 0);
+                      return _onSwipe(prev, curr, dir);
+                    },
+                    numberOfCardsDisplayed: destinations.length > 2 ? 3 : destinations.length,
+                    backCardOffset: const Offset(0, 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    cardBuilder: (context, index, _, __) => _destinationCard(destinations[index]),
+                  ),
             ),
             _actionButtons(context),
             const SizedBox(height: 20),
@@ -54,7 +150,55 @@ class _SwipePageState extends State<SwipePage> {
     );
   }
 
+  Widget _filterBar() {
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          _filterChip('All'),
+          const SizedBox(width: 10),
+          _filterChip('Nearby'),
+          const SizedBox(width: 10),
+          _filterChip('Top Rated'),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterChip(String label) {
+    final bool isSelected = activeFilter == label;
+    return GestureDetector(
+      onTap: () => _applyFilter(label),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isSelected ? Colors.transparent : Colors.white.withOpacity(0.1)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.white.withOpacity(0.5),
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _destinationCard(Destination destination) {
+    final userLoc = LocationService().currentLocation;
+    String distanceText = '2.5 KM AWAY';
+    if (userLoc != null && destination.latitude != null) {
+      double dist = LocationService().calculateDistance(
+        userLoc.latitude, userLoc.longitude, destination.latitude!, destination.longitude!
+      );
+      distanceText = '${dist.toStringAsFixed(1)} KM AWAY';
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -96,7 +240,7 @@ class _SwipePageState extends State<SwipePage> {
                 Positioned(
                   top: 16,
                   right: 16,
-                  child: _distanceChip('2.5 KM AWAY'),
+                  child: _distanceChip(distanceText),
                 ),
               ],
             ),
@@ -136,6 +280,13 @@ class _SwipePageState extends State<SwipePage> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
+                      const Spacer(),
+                      const Icon(Icons.star, size: 16, color: Colors.amber),
+                      const SizedBox(width: 4),
+                      Text(
+                        destination.rating.toString(),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -152,9 +303,9 @@ class _SwipePageState extends State<SwipePage> {
                   const Spacer(),
                   Row(
                     children: [
-                      _infoChip(Icons.calendar_today, 'Tomorrow, 6:00 AM'),
+                      _infoChip(Icons.access_time, destination.workingHours),
                       const SizedBox(width: 8),
-                      _infoChip(Icons.payments, 'Free'),
+                      _infoChip(Icons.payments_outlined, destination.entryFee),
                     ],
                   ),
                 ],
@@ -288,10 +439,10 @@ class _SwipePageState extends State<SwipePage> {
             size: 60,
           ),
           _roundButton(
-            onPressed: () {},
-            icon: Icons.star,
+            onPressed: () => _showFriendPicker(context, destinations[_currentIndex]),
+            icon: Icons.send_rounded,
             color: Colors.white.withOpacity(0.05),
-            iconColor: Colors.amber,
+            iconColor: Colors.blue,
             size: 60,
           ),
           _roundButton(
@@ -303,6 +454,53 @@ class _SwipePageState extends State<SwipePage> {
             hasShadow: true,
           ),
         ],
+      ),
+    );
+  }
+
+  void _showFriendPicker(BuildContext context, Destination destination) {
+    final socialService = SocialService();
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+            const Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Text('Share with Friend', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+            Expanded(
+              child: socialService.friends.isEmpty 
+                ? const Center(child: Text('No friends yet'))
+                : ListView.builder(
+                    itemCount: socialService.friends.length,
+                    itemBuilder: (context, index) {
+                      final friend = socialService.friends[index];
+                      return ListTile(
+                        leading: CircleAvatar(backgroundImage: NetworkImage(friend.avatarUrl)),
+                        title: Text(friend.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        trailing: const Icon(Icons.send, color: Colors.blue),
+                        onTap: () {
+                          socialService.sendDestination(friend.id, destination.name);
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Sent to ${friend.name}!')),
+                          );
+                        },
+                      );
+                    },
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
