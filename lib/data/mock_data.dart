@@ -1,13 +1,20 @@
+import 'package:flutter/foundation.dart';
 import 'package:finetravel/models/destination.dart';
 
 class MockData {
+  static final ValueNotifier<int> destinationsNotifier = ValueNotifier(0);
+
+  static void notifyDestinationsChanged() {
+    destinationsNotifier.value++;
+  }
+
   static List<Destination> destinations = [
     Destination(
       id: '1',
       name: 'Ölüdeniz',
       location: 'Fethiye, Türkiye',
       description: 'Ölüdeniz is a small village in Fethiye. It is famous for its Blue Lagoon and paragliding activities from Babadağ mountain.',
-      imageUrl: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=1000',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Paragliding_view_oludeniz_-_panoramio_%282%29.jpg/1280px-Paragliding_view_oludeniz_-_panoramio_%282%29.jpg',
       rating: 4.9,
       price: '₺₺₺',
       latitude: 36.5492,
@@ -20,7 +27,7 @@ class MockData {
       name: 'Cappadocia',
       location: 'Nevşehir, Türkiye',
       description: 'Known for its unique "fairy chimneys," cave dwellings, and sunrise hot air balloon rides over the surreal landscape.',
-      imageUrl: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?q=80&w=1000',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Cappadocia_balloon_trip%2C_Ortahisar_Castle_%2811893715185%29.jpg/1280px-Cappadocia_balloon_trip%2C_Ortahisar_Castle_%2811893715185%29.jpg',
       rating: 4.8,
       price: '₺₺₺₺',
       latitude: 38.6431,
@@ -33,7 +40,7 @@ class MockData {
       name: 'Santorini',
       location: 'Cyclades, Greece',
       description: 'Famous for its stunning sunsets, white-washed buildings with blue domes, and breathtaking views of the Aegean Sea.',
-      imageUrl: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=1000',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Oia_sunset_-_panoramio_%282%29.jpg/1280px-Oia_sunset_-_panoramio_%282%29.jpg',
       rating: 4.7,
       price: '€€€',
       latitude: 36.3932,
@@ -46,7 +53,7 @@ class MockData {
       name: 'Kyoto',
       location: 'Kansai, Japan',
       description: 'The cultural heart of Japan, featuring thousands of Buddhist temples, Shinto shrines, and beautiful Zen gardens.',
-      imageUrl: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1000',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Kiyomizu.jpg/1280px-Kiyomizu.jpg',
       rating: 4.9,
       price: '¥¥¥',
       latitude: 35.0116,
@@ -59,7 +66,7 @@ class MockData {
       name: 'Amalfi Coast',
       location: 'Salerno, Italy',
       description: 'A 50-kilometer stretch of coastline along the southern edge of Italy’s Sorrentine Peninsula, famous for its vertical towns.',
-      imageUrl: 'https://images.unsplash.com/photo-1633321088355-d0f81134ca3b?q=80&w=1000',
+      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Amalfi_Coast_%28Italy%2C_October_2020%29_-_75_%2850558355441%29.jpg/1280px-Amalfi_Coast_%28Italy%2C_October_2020%29_-_75_%2850558355441%29.jpg',
       rating: 4.4,
       price: '€€€€',
       latitude: 40.6333,

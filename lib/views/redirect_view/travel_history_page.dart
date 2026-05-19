@@ -9,7 +9,6 @@ class TravelHistoryPage extends StatelessWidget {
     final history = MockData.travelHistory;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0B),
       appBar: AppBar(
         title: const Text('Travel History'),
         backgroundColor: Colors.transparent,
@@ -23,7 +22,7 @@ class TravelHistoryPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final destination = history[index];
                 return Card(
-                  color: Colors.white.withOpacity(0.05),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
                   margin: const EdgeInsets.only(bottom: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   child: Padding(
@@ -55,7 +54,7 @@ class TravelHistoryPage extends StatelessWidget {
                                   const SizedBox(width: 4),
                                   Text(
                                     destination.location,
-                                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12),
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), fontSize: 12),
                                   ),
                                 ],
                               ),

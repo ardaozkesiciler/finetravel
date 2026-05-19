@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:finetravel/services/auth.dart';
 import 'package:finetravel/services/social_service.dart';
 import 'package:finetravel/views/notifications_view/notifications_page.dart';
 import 'package:finetravel/views/settings_view/settings_page.dart';
+import 'package:finetravel/views/home_view/add_place_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -19,7 +21,7 @@ class AppView extends StatelessWidget {
         final String displayName = user?.displayName ?? user?.email?.split('@')[0] ?? 'Explorer';
 
         return Scaffold(
-          appBar: _customAppBar(context, displayName),
+          appBar: _customAppBar(context, displayName, navigationShell.currentIndex),
           body: navigationShell,
           bottomNavigationBar: NavigationBar(
             selectedIndex: navigationShell.currentIndex,
@@ -60,16 +62,18 @@ class AppView extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _customAppBar(BuildContext context, String name) {
+  PreferredSizeWidget _customAppBar(BuildContext context, String name, int currentIndex) {
     return AppBar(
       toolbarHeight: 80,
       title: Row(
         children: [
           Stack(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 24,
-                backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=arda'), // Placeholder
+                backgroundImage: Auth().avatarPath != null
+                    ? FileImage(File(Auth().avatarPath!)) as ImageProvider
+                    : NetworkImage('https://i.pravatar.cc/150?u=${Auth().currentUser?.uid}'),
               ),
               Positioned(
                 bottom: 0,
@@ -111,6 +115,20 @@ class AppView extends StatelessWidget {
         ],
       ),
       actions: [
+        if (currentIndex == 0)
+          GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AddPlaceDialog(
+                  onPlaceAdded: () {},
+                ),
+              );
+            },
+            child: _appBarAction(context, CupertinoIcons.add),
+          ),
+        if (currentIndex == 0)
+          const SizedBox(width: 8),
         GestureDetector(
           onTap: () => Navigator.push(
             context,
@@ -158,10 +176,10 @@ class AppView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondary,
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
         shape: BoxShape.circle,
       ),
-      child: Icon(icon, size: 20, color: Colors.white),
+      child: Icon(icon, size: 20, color: Theme.of(context).colorScheme.onSurface),
     );
   }
 

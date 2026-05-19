@@ -11,14 +11,38 @@ class AppTheme {
   static ThemeData get lightTheme => ThemeData(
         brightness: Brightness.light,
         fontFamily: 'Inter',
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: const Color(0xFFF4F7F6), // Soft off-white background
         colorScheme: const ColorScheme.light(
           primary: primaryBlue,
-          secondary: Color(0xFFD5E9ED),
+          secondary: Colors.white,
           surface: Colors.white,
-          onSurface: Color(0xFF414A4C),
+          onSurface: Color(0xFF1E293B), // Dark blue-gray text
+          onSecondary: Color(0xFF64748B), // Gray secondary text
           error: Color(0xFFEA7979),
-          tertiary: Color(0XFFB5C4C7),
+          tertiary: Color(0xFF94A3B8), // Lighter gray for icons
+        ),
+        cardTheme: CardThemeData(
+          color: Colors.white,
+          elevation: 2,
+          shadowColor: Colors.black.withValues(alpha: 0.05),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF4F7F6),
+          foregroundColor: Color(0xFF1E293B),
+          elevation: 0,
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: Colors.white,
+          indicatorColor: Colors.transparent,
+          labelTextStyle: WidgetStateTextStyle.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const TextStyle(color: primaryBlue, fontSize: 12, fontWeight: FontWeight.bold);
+            }
+            return const TextStyle(color: Color(0xFF94A3B8), fontSize: 12);
+          }),
         ),
         iconButtonTheme: IconButtonThemeData(
           style: IconButton.styleFrom(foregroundColor: primaryBlue),

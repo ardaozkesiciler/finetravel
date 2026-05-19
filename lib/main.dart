@@ -4,6 +4,7 @@ import 'package:finetravel/pages/login_register.dart';
 import 'package:finetravel/views/app_view.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:finetravel/services/theme_service.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -20,12 +21,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: router,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark,
+    return ListenableBuilder(
+      listenable: ThemeService(),
+      builder: (context, _) {
+        return MaterialApp.router(
+          routerConfig: router,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeService().themeMode,
+        );
+      },
     );
   }
 }

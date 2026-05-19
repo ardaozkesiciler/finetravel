@@ -21,14 +21,14 @@ class Favorites extends StatelessWidget {
                 Icon(
                   Icons.map_outlined,
                   size: 80,
-                  color: Colors.white.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'No trips yet.\nSwipe on Explore to add some!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                     fontSize: 16,
                   ),
                 ),
@@ -78,10 +78,10 @@ class Favorites extends StatelessWidget {
                             children: [
                               Text(
                                 destination.name,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -111,8 +111,8 @@ class Favorites extends StatelessWidget {
                                 children: [
                                   Text(
                                     destination.price,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),

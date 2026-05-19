@@ -64,7 +64,6 @@ class _LocationSelectionMapState extends State<LocationSelectionMap> with Single
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0B),
       appBar: AppBar(
         title: const Text('LOCATION COMMAND', style: TextStyle(letterSpacing: 2, fontSize: 14, fontWeight: FontWeight.bold)),
         centerTitle: true,
@@ -85,10 +84,10 @@ class _LocationSelectionMapState extends State<LocationSelectionMap> with Single
           children: [
             const Icon(Icons.satellite_alt, color: Colors.blue, size: 48),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'WHERE ARE YOU\nEXPLORING FROM?',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 32,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -1,
@@ -98,18 +97,18 @@ class _LocationSelectionMapState extends State<LocationSelectionMap> with Single
             const SizedBox(height: 12),
             Text(
               'Enter your city name or sector coordinates to calibrate your discovery feed.',
-              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 16),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), fontSize: 16),
             ),
             const SizedBox(height: 40),
             TextField(
               controller: _controller,
               enabled: !_isProcessing,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18),
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.05),
+                fillColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
                 hintText: 'e.g. Istanbul, London, Tokyo...',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.2)),
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2)),
                 prefixIcon: const Icon(Icons.search, color: Colors.blue),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),

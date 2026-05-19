@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:finetravel/services/auth.dart';
 import 'package:finetravel/services/social_service.dart';
 import 'package:finetravel/views/social_view/social_overview_page.dart';
 import 'package:finetravel/views/redirect_view/travel_history_page.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class Redirect extends StatelessWidget {
   const Redirect({super.key});
@@ -22,9 +25,28 @@ class Redirect extends StatelessWidget {
               children: [
                 const SizedBox(height: 60),
                 // Profile Header
-                CircleAvatar(
-                  radius: 60,
-                  backgroundImage: NetworkImage('https://i.pravatar.cc/150?u=${user?.uid}'),
+                GestureDetector(
+                  onTap: () => _pickAndCropImage(context),
+                  child: Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: Auth().avatarPath != null 
+                            ? FileImage(File(Auth().avatarPath!)) as ImageProvider
+                            : NetworkImage('https://i.pravatar.cc/150?u=${user?.uid}'),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 3),
+                        ),
+                        child: const Icon(Icons.camera_alt, size: 20, color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -113,6 +135,59 @@ class Redirect extends StatelessWidget {
       context: context,
       builder: (context) => const _EditProfileDialog(),
     );
+  }
+
+  Future<void> _pickAndCropImage(BuildContext context) async {
+    final picker = ImagePicker();
+    
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take a photo'),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from gallery'),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source == null) return;
+
+    final pickedFile = await picker.pickImage(source: source);
+    if (pickedFile != null) {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Profile Picture',
+            toolbarColor: Theme.of(context).colorScheme.surface,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+          ),
+          IOSUiSettings(
+            title: 'Crop Profile Picture',
+            aspectRatioLockEnabled: true,
+            resetAspectRatioEnabled: false,
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        await Auth().updateAvatar(croppedFile.path);
+      }
+    }
   }
 
   Widget _statItem(String label, String value) {

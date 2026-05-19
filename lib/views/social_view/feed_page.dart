@@ -84,7 +84,7 @@ class FeedPage extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: "What's on your mind?",
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.05),
+                fillColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide.none,
@@ -98,7 +98,7 @@ class FeedPage extends StatelessWidget {
                 hintText: "Image URL (optional)",
                 prefixIcon: const Icon(Icons.image_outlined),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.05),
+                fillColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide.none,
@@ -127,7 +127,7 @@ class FeedPage extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.surface,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
                 child: const Text('Share Post', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -325,7 +325,7 @@ class _PostCard extends StatelessWidget {
                         hintText: 'Add a comment...',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.05),
+                        fillColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
                       ),
                     ),
                   ),

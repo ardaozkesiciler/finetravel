@@ -25,10 +25,33 @@ class _SwipePageState extends State<SwipePage> {
   void initState() {
     super.initState();
     destinations = List.from(MockData.destinations);
+    MockData.destinationsNotifier.addListener(_onDestinationsChanged);
+  }
+
+  void _onDestinationsChanged() {
+    if (mounted) {
+      setState(() {
+        destinations = List.from(MockData.destinations);
+        if (activeFilter == 'Top Rated') {
+          destinations.sort((a, b) => b.rating.compareTo(a.rating));
+        } else if (activeFilter == 'Nearby') {
+          final location = LocationService().currentLocation;
+          if (location != null) {
+            destinations.sort((a, b) {
+              if (a.latitude == null || b.latitude == null) return 0;
+              double distA = LocationService().calculateDistance(location.latitude, location.longitude, a.latitude!, a.longitude!);
+              double distB = LocationService().calculateDistance(location.latitude, location.longitude, b.latitude!, b.longitude!);
+              return distA.compareTo(distB);
+            });
+          }
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
+    MockData.destinationsNotifier.removeListener(_onDestinationsChanged);
     controller.dispose();
     super.dispose();
   }
@@ -258,10 +281,10 @@ class _SwipePageState extends State<SwipePage> {
                       Expanded(
                         child: Text(
                           destination.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -285,7 +308,7 @@ class _SwipePageState extends State<SwipePage> {
                       const SizedBox(width: 4),
                       Text(
                         destination.rating.toString(),
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -295,7 +318,7 @@ class _SwipePageState extends State<SwipePage> {
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                       fontSize: 14,
                       height: 1.5,
                     ),
@@ -361,9 +384,9 @@ class _SwipePageState extends State<SwipePage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1)),
       ),
       child: Row(
         children: [
@@ -371,7 +394,7 @@ class _SwipePageState extends State<SwipePage> {
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -392,14 +415,14 @@ class _SwipePageState extends State<SwipePage> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
                 shape: BoxShape.circle,
                 border: Border.all(color: Theme.of(context).colorScheme.surface, width: 2),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
                   '+3',
-                  style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 10, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

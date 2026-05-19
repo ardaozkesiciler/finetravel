@@ -64,7 +64,7 @@ class SocialOverviewPage extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Connect with other travelers around the world.',
-              style: TextStyle(color: Colors.white.withOpacity(0.5)),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
             ),
             const SizedBox(height: 20),
             TextField(
@@ -74,7 +74,7 @@ class SocialOverviewPage extends StatelessWidget {
                 hintText: 'Enter name or email',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.05),
+                fillColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide.none,
@@ -105,7 +105,7 @@ class SocialOverviewPage extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: Theme.of(context).colorScheme.surface,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
                 child: const Text('Add Friend', style: TextStyle(fontWeight: FontWeight.bold)),
